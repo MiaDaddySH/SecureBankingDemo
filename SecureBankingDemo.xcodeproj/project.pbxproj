@@ -27,6 +27,10 @@
 		904C181B2FF316BB00BB3088 /* SecureBankingDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureBankingDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		904C18282FF316BD00BB3088 /* SecureBankingDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureBankingDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		904C18322FF316BD00BB3088 /* SecureBankingDemoUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureBankingDemoUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9080121E2FF39B59005DDB8D /* SecurityKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = SecurityKit; path = Packages/SecurityKit; sourceTree = "<group>"; };
+		908012202FF39C8D005DDB8D /* AuthKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = AuthKit; path = Packages/AuthKit; sourceTree = "<group>"; };
+		908012212FF39D17005DDB8D /* NetworkKit */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = NetworkKit; path = Packages/NetworkKit; sourceTree = "<group>"; };
+		908012222FF39D4E005DDB8D /* AGENTS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = AGENTS.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -75,10 +79,14 @@
 		904C18122FF316BB00BB3088 = {
 			isa = PBXGroup;
 			children = (
+				908012222FF39D4E005DDB8D /* AGENTS.md */,
+				908012212FF39D17005DDB8D /* NetworkKit */,
+				9080121E2FF39B59005DDB8D /* SecurityKit */,
 				904C181D2FF316BB00BB3088 /* SecureBankingDemo */,
 				904C182B2FF316BD00BB3088 /* SecureBankingDemoTests */,
 				904C18352FF316BD00BB3088 /* SecureBankingDemoUITests */,
 				904C181C2FF316BB00BB3088 /* Products */,
+				908012202FF39C8D005DDB8D /* AuthKit */,
 			);
 			sourceTree = "<group>";
 		};
