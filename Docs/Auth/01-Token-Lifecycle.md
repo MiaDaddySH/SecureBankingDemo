@@ -1,62 +1,69 @@
 # 01 - Token 生命周期
 
-认证系统通常会同时使用 access token 和 refresh token。它们看起来都是 token，但安全语义完全不同。
+## Topic Name
 
-## Access Token 和 Refresh Token 的区别
+Access token 与 refresh token 生命周期管理。
 
-Access token 用来访问业务 API。客户端把它放在请求头里，服务端用它判断当前请求是否已认证、是否有权限访问某个资源。
+认证系统通常会同时使用 access token 和 refresh token。它们都叫 token，但用途、生命周期和安全要求不同。
 
-Refresh token 用来换取新的 access token。它通常不应该被频繁发送到普通业务 API，只在刷新会话时使用。
+## What problem does it solve?
 
-可以把它们理解成：
+Token 生命周期管理解决的是“如何在用户体验和凭证安全之间取得平衡”的问题。
 
-- access token：短期通行证。
-- refresh token：续期凭证。
+如果 access token 生命周期太长，一旦泄露，攻击者可以长时间调用 API。如果每次 access token 过期都要求用户重新登录，体验又会很差。Refresh token 的作用是让客户端在合适的时机换取新的 access token，同时把长期凭证放在更安全的位置。
 
-## 为什么 Access Token 应该短生命周期
+## Real-world scenario
 
-Access token 会出现在更多运行路径里，例如网络请求、日志边界、调试器、内存快照和错误上报附近。它的暴露面比 refresh token 更大。
+一个移动银行 App 登录成功后，服务端返回两类凭证：
 
-让 access token 短生命周期有几个好处：
+- access token：短生命周期，用于普通 API 请求。
+- refresh token：长生命周期，用于换取新的 access token。
 
-- 泄露后的可用时间更短。
-- 服务端可以更快地收回权限。
-- 客户端可以通过 refresh token 静默换取新 access token，减少用户频繁登录。
+用户打开 App 后，App 使用内存中的 access token 调用接口。access token 过期后，App 使用 Keychain 中的 refresh token 请求服务端刷新会话。用户登出时，App 必须同时清空内存中的 access token，并删除 Keychain 中的 refresh token。
 
-在 `AuthKit` 中，access token 只保存在 `SessionManager` 的内存状态里，不写入 `UserDefaults`，也不写入 Keychain。
+## Key APIs
 
-## 为什么 Refresh Token 需要安全存储
+本 Demo 的 AuthKit 当前不直接调用系统安全 API，而是通过协议连接 SecurityKit：
 
-Refresh token 的生命周期通常更长，而且可以换取新的 access token。如果 refresh token 泄露，攻击者可能在较长时间内持续恢复会话。
+- `AuthTokens`：保存登录后得到的 access token、refresh token 和 access token 过期时间。
+- `TokenStoring`：定义 refresh token 的保存、读取和删除接口。
+- `KeychainTokenStore`：使用 `SecurityKit.KeychainStoring` 把 refresh token 写入 Keychain。
+- `SessionManager`：管理当前会话，保存内存态 access token，并协调 refresh token 的持久化。
+- `SecurityKit.KeychainStoring`：SecurityKit 暴露给 AuthKit 的安全存储协议。
 
-因此 refresh token 必须使用安全存储。在本项目中：
+## How this demo uses it
 
-- `AuthKit` 定义 `TokenStoring` 协议。
-- `KeychainTokenStore` 使用 `SecurityKit.KeychainStoring` 保存 refresh token。
-- refresh token 以 `Data` 形式写入 Keychain。
-- token 不存入 `UserDefaults`。
+当前实现的规则是：
 
-## Logout 时发生什么
+- access token 只存在 `SessionManager` 的内存状态中。
+- refresh token 通过 `TokenStoring` 保存。
+- 默认实现 `KeychainTokenStore` 使用 Keychain 保存 refresh token。
+- 不使用 `UserDefaults` 保存 token。
+- logout 会清空 access token，并删除 refresh token。
+- app restart 后 access token 不会恢复；如果 Keychain 中仍有 refresh token，后续可以通过服务端刷新接口恢复会话。
 
-用户登出时，客户端需要同时清理两类状态：
+当前 Demo 还没有实现真实 token refresh 网络请求，这部分属于后续 NetworkKit/AuthService 的扩展内容。
 
-- 清空内存中的 access token。
-- 删除 Keychain 中保存的 refresh token。
+## Common mistakes
 
-这能确保登出后 App 不能继续调用需要认证的 API，也不能静默刷新出新的 access token。
+- 把 access token 或 refresh token 存入 `UserDefaults`。
+- 让 access token 生命周期过长。
+- 把 refresh token 当成普通 API token，到处发送。
+- 登出时只清空内存状态，却忘记删除 refresh token。
+- App 重启后直接假设用户仍然已登录，而不检查 refresh token 和服务端会话状态。
+- 在 AuthKit 中直接写死 Keychain 细节，导致测试困难、模块边界变模糊。
 
-`SessionManager.logout()` 负责执行这两个动作。
+## Interview explanation
 
-## App 重启时发生什么
+可以这样解释：
 
-App 重启后，内存状态会丢失，所以 access token 不会恢复。
+Access token 是短生命周期访问凭证，主要用于调用 API；refresh token 是长期续期凭证，用来换取新的 access token。因为 access token 暴露面更大，所以应该短生命周期并尽量只放内存。Refresh token 能恢复会话，风险更高，因此需要用 Keychain 这类安全存储保存。
 
-如果 Keychain 中仍然存在 refresh token，App 可以认为“存在可恢复会话”，然后通过服务端刷新接口换取新的 access token。这个过程应该由后续的 AuthService 或网络层协作完成。
+在实现上，我会让 `SessionManager` 管理内存态 access token，让 `TokenStoring` 抽象 refresh token 存储，再用 `KeychainTokenStore` 作为生产实现。这样既能保证“不用 UserDefaults 存 token”，也能通过 mock store 做单元测试。
 
-在当前实现中，`SessionManager.restoreSessionAfterAppRestart()` 会：
+## Further reading
 
-- 清空内存中的 access token。
-- 检查 Keychain 中是否存在 refresh token。
-- 返回是否存在可恢复会话。
-
-它不会直接生成新的 access token，因为 token 刷新需要服务端参与。
+- OAuth 2.0: Refresh Token
+- OAuth 2.0 Security Best Current Practice
+- OWASP Mobile Application Security: Authentication and Session Management
+- Apple Developer Documentation: Keychain Services

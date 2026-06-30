@@ -1,79 +1,77 @@
 # 01 - Keychain
 
-Keychain 是 iOS、iPadOS、macOS 等 Apple 平台提供的安全存储系统，适合保存 token、密码、私钥引用等敏感数据。SecureBankingDemo 使用 `SecurityKit` 封装 Keychain，让 App 和业务模块不需要直接调用 `Security.framework`。
+## Topic Name
 
-## 为什么不用 UserDefaults
+Keychain 安全存储。
 
-`UserDefaults` 适合保存偏好设置，例如开关状态、排序方式、上次打开的页面等。它不适合保存 secret。
+Keychain 是 Apple 平台提供的系统级安全存储能力，适合保存 token、密码、私钥引用、随机密钥材料等敏感数据。SecureBankingDemo 使用 `SecurityKit` 封装 Keychain，让 App 和业务模块不直接接触 `Security.framework`。
 
-常见原因：
+## What problem does it solve?
 
-- `UserDefaults` 不是为敏感数据设计的。
-- 数据通常以 plist 形式保存，容易被调试、备份或导出时看到。
-- 它没有 Keychain 的访问控制、设备锁定状态保护和系统级安全语义。
-- 把 token 放进 `UserDefaults` 容易让后续代码误以为 token 只是普通配置。
+Keychain 解决的是“敏感数据应该如何持久化保存”的问题。
 
-Keychain 的价值在于：它把“敏感数据”作为一等概念处理，并允许开发者声明数据在什么设备状态下可以被读取。
+`UserDefaults` 适合保存偏好设置，例如主题、排序方式、开关状态。它不是安全存储，不应该保存 access token、refresh token、密码或私钥。Keychain 让系统参与保护数据，并允许开发者声明数据在什么设备状态下可以被读取。
 
-## kSecClassGenericPassword 是什么
+在本项目中，Keychain 用来保存 refresh token 这类生命周期较长、泄露风险较高的凭证。
 
-`kSecClassGenericPassword` 表示 Keychain item 的类型是“通用密码”。
+## Real-world scenario
 
-虽然名字里有 password，但它不只能保存密码。常见的 token、refresh token、随机密钥材料等 `Data` 值，也可以用 generic password item 保存。
+一个真实 App 登录成功后，服务端通常会返回 access token 和 refresh token。
 
-在 `KeychainStore` 中，保存、读取、删除都使用：
+Access token 生命周期短，常用于 API 请求；refresh token 生命周期长，用来换取新的 access token。如果把 refresh token 放进 `UserDefaults`，攻击者在调试、备份分析或越狱环境中更容易拿到它。
 
-```swift
-kSecClass as String: kSecClassGenericPassword
-```
+更合理的做法是：access token 保留在内存中，refresh token 存入 Keychain。用户登出时，Keychain 中的 refresh token 必须被删除。
 
-这告诉 Keychain：本次操作面向通用密码类型的条目。
+## Key APIs
 
-## kSecAttrService 和 kSecAttrAccount 是什么
+`Security.framework` 中和本 Demo 相关的核心 API 包括：
 
-`kSecAttrService` 和 `kSecAttrAccount` 一起用于定位一个 Keychain item。
+- `SecItemAdd`：新增 Keychain item。
+- `SecItemCopyMatching`：查询 Keychain item。
+- `SecItemUpdate`：更新 Keychain item。
+- `SecItemDelete`：删除 Keychain item。
+- `kSecClassGenericPassword`：表示保存的是 generic password 类型条目。
+- `kSecAttrService`：表示条目的服务域，常用于区分 App、模块或功能。
+- `kSecAttrAccount`：表示服务域下的具体条目名。
+- `kSecAttrAccessible`：声明条目在什么设备状态下可访问。
+- `OSStatus`：Keychain API 返回的状态码，例如 `errSecSuccess` 和 `errSecItemNotFound`。
 
-- `kSecAttrService`：通常表示应用、模块或功能域，例如 `com.example.bank.auth`。
-- `kSecAttrAccount`：通常表示这个 service 下的具体账号或条目名，例如 `accessToken`、`refreshToken`。
+`kSecClassGenericPassword` 虽然名字里有 password，但不只用于密码；token、随机密钥材料等 `Data` 也可以放在这个类型里。
 
-可以把它们理解成一个组合键：
+## How this demo uses it
 
-```text
-service + account -> keychain item
-```
-
-在 Demo 中，建议 service 使用稳定、可读、带命名空间的字符串；account 使用能表达用途的名字，避免使用真实用户密码或 token 片段作为 account。
-
-## kSecAttrAccessible 是什么
-
-`kSecAttrAccessible` 用来声明 Keychain item 什么时候可以被系统解密和读取。
-
-常见选项包括：
-
-- `kSecAttrAccessibleWhenUnlocked`：设备解锁时可访问。
-- `kSecAttrAccessibleAfterFirstUnlock`：设备重启后，用户第一次解锁之后可访问。
-- `kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly`：仅当设备设置了密码时可用，并且不会迁移到其他设备。
-- `kSecAttrAccessibleWhenUnlockedThisDeviceOnly`：设备解锁时可访问，并且不会迁移到其他设备。
-- `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`：首次解锁后可访问，并且不会迁移到其他设备。
-
-`ThisDeviceOnly` 选项通常更适合高敏感数据，因为这些数据不会通过备份迁移到新设备。代价是用户换设备或恢复备份后，需要重新登录或重新生成对应数据。
-
-## 当前实现
-
-`SecurityKit` 提供：
+`SecurityKit` 当前提供四个核心类型：
 
 - `KeychainStoring`：协议，定义 `save`、`read`、`delete`。
 - `KeychainStore`：基于 `Security.framework` 的实现。
 - `KeychainAccessibility`：封装常见 `kSecAttrAccessible` 选项。
-- `KeychainError`：封装常见错误，并保留底层 `OSStatus`。
+- `KeychainError`：封装 Keychain 错误，并保留底层 `OSStatus`。
 
-当前只支持保存 `Data`，这是刻意选择：调用方需要明确处理编码和解码，避免在安全存储层隐藏业务格式。
+当前实现只保存 `Data`。这是有意设计：安全存储层不隐藏业务编码格式，调用方需要明确把字符串、模型或 token 转成 `Data`。
 
-## 常见错误
+`AuthKit.KeychainTokenStore` 通过 `KeychainStoring` 保存 refresh token。App 不直接调用 `Security.framework`。
 
-- 把 token 存入 `UserDefaults`。
-- 使用真实账号、密码、token 片段作为 `service` 或 `account`。
+## Common mistakes
+
+- 把 token、密码或私钥存入 `UserDefaults`。
+- 在 `service` 或 `account` 中放入真实 token、密码片段或敏感用户信息。
 - 忘记处理 `errSecItemNotFound`。
-- 保存前不考虑 `kSecAttrAccessible`，导致锁屏、重启或后台刷新场景行为不符合预期。
+- 保存时不考虑 `kSecAttrAccessible`，导致锁屏、重启、后台刷新场景下行为不符合预期。
 - 在 SecurityKit 中加入业务概念，例如“银行卡”“转账”“用户等级”。
-- 认为 Keychain 等于绝对安全。Keychain 能降低风险，但仍需要配合最小权限、合理过期时间、token refresh、设备完整性和服务端风控。
+- 认为使用 Keychain 就等于绝对安全。Keychain 能降低风险，但仍需要配合短 token 生命周期、服务端撤销、设备安全和风控策略。
+
+## Interview explanation
+
+可以这样解释：
+
+Keychain 是 Apple 平台用于保存敏感数据的系统级安全存储。相比 `UserDefaults`，它提供更明确的安全语义和访问控制。保存 token 时，我会把短生命周期 access token 放在内存里，把生命周期更长的 refresh token 放在 Keychain，并通过 `kSecAttrAccessible` 决定数据在设备锁定、重启和备份迁移时的行为。
+
+在架构上，我不会让 UI 或业务层直接调用 `Security.framework`。我会在安全模块里定义协议和实现，例如 `KeychainStoring` 和 `KeychainStore`，再让认证模块通过协议依赖它。这样可以保持模块边界清晰，也方便单元测试。
+
+## Further reading
+
+- Apple Developer Documentation: Keychain Services
+- Apple Developer Documentation: `SecItemAdd`
+- Apple Developer Documentation: `SecItemCopyMatching`
+- Apple Developer Documentation: `kSecAttrAccessible`
+- OWASP Mobile Application Security: Data Storage
