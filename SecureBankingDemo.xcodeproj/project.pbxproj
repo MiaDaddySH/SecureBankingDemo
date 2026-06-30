@@ -23,6 +23,10 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXBuildFile section */
+		908012302FF4A100005DDB8D /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 908012312FF4A100005DDB8D /* AuthKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		904C181B2FF316BB00BB3088 /* SecureBankingDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureBankingDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		904C18282FF316BD00BB3088 /* SecureBankingDemoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SecureBankingDemoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -56,6 +60,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				908012302FF4A100005DDB8D /* AuthKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -120,6 +125,7 @@
 			);
 			name = SecureBankingDemo;
 			packageProductDependencies = (
+				908012312FF4A100005DDB8D /* AuthKit */,
 			);
 			productName = SecureBankingDemo;
 			productReference = 904C181B2FF316BB00BB3088 /* SecureBankingDemo.app */;
@@ -203,6 +209,9 @@
 			);
 			mainGroup = 904C18122FF316BB00BB3088;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 904C181C2FF316BB00BB3088 /* Products */;
 			projectDirPath = "";
@@ -586,6 +595,21 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/AuthKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		908012312FF4A100005DDB8D /* AuthKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */;
+			productName = AuthKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 904C18132FF316BB00BB3088 /* Project object */;
 }

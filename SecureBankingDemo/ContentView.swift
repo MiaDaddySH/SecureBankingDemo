@@ -1,24 +1,33 @@
-//
-//  ContentView.swift
-//  SecureBankingDemo
-//
-//  Created by Yuangang Sheng on 29.06.26.
-//
-
+import AuthKit
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var sessionController: AppSessionController
+
+    @MainActor
+    init() {
+        _sessionController = StateObject(wrappedValue: AppSessionController())
+    }
+
+    @MainActor
+    init(sessionController: AppSessionController) {
+        _sessionController = StateObject(wrappedValue: sessionController)
+    }
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        switch sessionController.route {
+        case .login:
+            LoginView(viewModel: LoginViewModel(sessionController: sessionController))
+        case .dashboard:
+            DashboardView(viewModel: DashboardViewModel(sessionController: sessionController))
         }
-        .padding()
     }
 }
 
 #Preview {
-    ContentView()
+    ContentView(
+        sessionController: AppSessionController(
+            sessionManager: SessionManager(tokenStore: PreviewTokenStore())
+        )
+    )
 }

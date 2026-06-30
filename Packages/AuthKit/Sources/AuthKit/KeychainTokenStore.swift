@@ -19,6 +19,19 @@ public final class KeychainTokenStore: TokenStoring, @unchecked Sendable {
         self.accessibility = accessibility
     }
 
+    public convenience init(
+        service: String = "com.securebankingdemo.auth",
+        refreshTokenAccount: String = "refreshToken",
+        accessibility: KeychainAccessibility = .whenUnlockedThisDeviceOnly
+    ) {
+        self.init(
+            keychainStore: KeychainStore(),
+            service: service,
+            refreshTokenAccount: refreshTokenAccount,
+            accessibility: accessibility
+        )
+    }
+
     public func saveRefreshToken(_ token: String) throws {
         guard let data = token.data(using: .utf8) else {
             throw TokenStoreError.invalidRefreshTokenData
