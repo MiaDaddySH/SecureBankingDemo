@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		908012302FF4A100005DDB8D /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 908012312FF4A100005DDB8D /* AuthKit */; };
+		908012332FF4B200005DDB8D /* SecurityKit in Frameworks */ = {isa = PBXBuildFile; productRef = 908012342FF4B200005DDB8D /* SecurityKit */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		904C18292FF316BD00BB3088 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -22,10 +27,6 @@
 			remoteInfo = SecureBankingDemo;
 		};
 /* End PBXContainerItemProxy section */
-
-/* Begin PBXBuildFile section */
-		908012302FF4A100005DDB8D /* AuthKit in Frameworks */ = {isa = PBXBuildFile; productRef = 908012312FF4A100005DDB8D /* AuthKit */; };
-/* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		904C181B2FF316BB00BB3088 /* SecureBankingDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecureBankingDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -61,6 +62,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				908012302FF4A100005DDB8D /* AuthKit in Frameworks */,
+				908012332FF4B200005DDB8D /* SecurityKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -126,6 +128,7 @@
 			name = SecureBankingDemo;
 			packageProductDependencies = (
 				908012312FF4A100005DDB8D /* AuthKit */,
+				908012342FF4B200005DDB8D /* SecurityKit */,
 			);
 			productName = SecureBankingDemo;
 			productReference = 904C181B2FF316BB00BB3088 /* SecureBankingDemo.app */;
@@ -210,7 +213,8 @@
 			mainGroup = 904C18122FF316BB00BB3088;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */,
+				908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "Packages/AuthKit" */,
+				908012352FF4B200005DDB8D /* XCLocalSwiftPackageReference "Packages/SecurityKit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 904C181C2FF316BB00BB3088 /* Products */;
@@ -420,6 +424,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Use Face ID to unlock your saved demo session.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -452,6 +457,7 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Use Face ID to unlock your saved demo session.";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -597,17 +603,26 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */ = {
+		908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "Packages/AuthKit" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = Packages/AuthKit;
+		};
+		908012352FF4B200005DDB8D /* XCLocalSwiftPackageReference "Packages/SecurityKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/SecurityKit;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		908012312FF4A100005DDB8D /* AuthKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "AuthKit" */;
+			package = 908012322FF4A100005DDB8D /* XCLocalSwiftPackageReference "Packages/AuthKit" */;
 			productName = AuthKit;
+		};
+		908012342FF4B200005DDB8D /* SecurityKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 908012352FF4B200005DDB8D /* XCLocalSwiftPackageReference "Packages/SecurityKit" */;
+			productName = SecurityKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

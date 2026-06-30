@@ -35,6 +35,20 @@ struct LoginView: View {
                     .foregroundStyle(.red)
             }
 
+            if viewModel.shouldShowBiometricUnlock {
+                Button {
+                    Task {
+                        await viewModel.unlockWithBiometrics()
+                    }
+                } label: {
+                    Text("Unlock with Face ID")
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.large)
+                .disabled(viewModel.isLoading)
+            }
+
             Button {
                 Task {
                     await viewModel.login()

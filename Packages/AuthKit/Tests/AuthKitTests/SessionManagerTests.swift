@@ -37,6 +37,16 @@ final class SessionManagerTests: XCTestCase {
         XCTAssertEqual(refreshToken, "refresh-token")
     }
 
+    func testHasStoredRefreshTokenReturnsTrueWhenRefreshTokenExists() async throws {
+        let tokenStore = MockTokenStore()
+        tokenStore.refreshToken = "refresh-token"
+        let manager = SessionManager(tokenStore: tokenStore)
+
+        let hasRefreshToken = try await manager.hasStoredRefreshToken()
+
+        XCTAssertTrue(hasRefreshToken)
+    }
+
     func testLogoutClearsAccessTokenAndDeletesRefreshToken() async throws {
         let tokenStore = MockTokenStore()
         let manager = SessionManager(tokenStore: tokenStore)

@@ -15,11 +15,16 @@ struct ContentView: View {
     }
 
     var body: some View {
-        switch sessionController.route {
-        case .login:
-            LoginView(viewModel: LoginViewModel(sessionController: sessionController))
-        case .dashboard:
-            DashboardView(viewModel: DashboardViewModel(sessionController: sessionController))
+        Group {
+            switch sessionController.route {
+            case .login:
+                LoginView(viewModel: LoginViewModel(sessionController: sessionController))
+            case .dashboard:
+                DashboardView(viewModel: DashboardViewModel(sessionController: sessionController))
+            }
+        }
+        .task {
+            await sessionController.prepareLaunch()
         }
     }
 }

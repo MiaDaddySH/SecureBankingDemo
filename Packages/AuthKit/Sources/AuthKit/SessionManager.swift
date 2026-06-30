@@ -35,6 +35,10 @@ public actor SessionManager {
         try tokenStore.readRefreshToken()
     }
 
+    public func hasStoredRefreshToken() throws -> Bool {
+        try tokenStore.readRefreshToken() != nil
+    }
+
     public func restoreSessionAfterAppRestart() throws -> Bool {
         accessToken = nil
         accessTokenExpiresAt = nil

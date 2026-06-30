@@ -21,4 +21,18 @@ struct MockAuthService {
             accessTokenExpiresAt: Date().addingTimeInterval(15 * 60)
         )
     }
+
+    func restoreSession(refreshToken: String) async throws -> AuthTokens {
+        guard refreshToken.hasPrefix("demo-refresh-token-") else {
+            throw MockAuthError.invalidCredentials
+        }
+
+        try await Task.sleep(for: .milliseconds(300))
+
+        return AuthTokens(
+            accessToken: "demo-access-token-restored",
+            refreshToken: refreshToken,
+            accessTokenExpiresAt: Date().addingTimeInterval(15 * 60)
+        )
+    }
 }

@@ -21,6 +21,10 @@ final class LoginViewModel: ObservableObject {
         isLoading || username.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || password.isEmpty
     }
 
+    var shouldShowBiometricUnlock: Bool {
+        sessionController.canUnlockWithBiometrics
+    }
+
     func login() async {
         guard !isLoginDisabled else {
             return
@@ -30,5 +34,12 @@ final class LoginViewModel: ObservableObject {
         defer { isLoading = false }
 
         await sessionController.login(username: username, password: password)
+    }
+
+    func unlockWithBiometrics() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        await sessionController.unlockWithBiometrics()
     }
 }
