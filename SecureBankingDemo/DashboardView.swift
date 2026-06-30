@@ -29,6 +29,8 @@ struct DashboardView: View {
                     .textSelection(.enabled)
             }
 
+            SecureNotesView(viewModel: viewModel.secureNotesViewModel)
+
             Spacer()
 
             if let errorMessage = viewModel.errorMessage {
